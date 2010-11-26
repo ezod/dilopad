@@ -1,1 +1,1 @@
-# Digikit - Digital Logic Scratch Pad and Simulator
+# Dilopad - Digital Logic Scratchpad and Simulator

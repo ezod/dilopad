@@ -32,10 +32,7 @@ class NOTGate(Device):
         """\
         Update outputs based on inputs.
         """
-        if self._inputs['a']:
-            self._outputs['q'] = False
-        else:
-            self._outputs['q'] = True
+        self._outputs['q'] = not self._inputs['a']
 
 
 class ANDGate(Device):
@@ -54,10 +51,7 @@ class ANDGate(Device):
         """\
         Update outputs based on inputs.
         """
-        if self._inputs['a'] and self._inputs['b']:
-            self._outputs['q'] = True
-        else:
-            self._outputs['q'] = False
+        self._outputs['q'] = self._inputs['a'] and self._inputs['b']
 
 
 class ORGate(Device):
@@ -76,10 +70,7 @@ class ORGate(Device):
         """\
         Update outputs based on inputs.
         """
-        if self._inputs['a'] or self._inputs['b']:
-            self._outputs['q'] = True
-        else:
-            self._outputs['q'] = False
+        self._outputs['q'] = self._inputs['a'] or self._inputs['b']
 
 
 class NANDGate(Device):
@@ -98,10 +89,7 @@ class NANDGate(Device):
         """\
         Update outputs based on inputs.
         """
-        if self._inputs['a'] and self._inputs['b']:
-            self._outputs['q'] = False
-        else:
-            self._outputs['q'] = True
+        self._outputs['q'] = not (self._inputs['a'] and self._inputs['b'])
 
 
 class NORGate(Device):
@@ -120,10 +108,7 @@ class NORGate(Device):
         """\
         Update outputs based on inputs.
         """
-        if self._inputs['a'] or self._inputs['b']:
-            self._outputs['q'] = False
-        else:
-            self._outputs['q'] = True
+        self._outputs['q'] = not (self._inputs['a'] or self._inputs['b'])
 
 
 class XORGate(Device):
@@ -142,11 +127,8 @@ class XORGate(Device):
         """\
         Update outputs based on inputs.
         """
-        if self._inputs['a'] or self._inputs['b'] \
-        and not (self._inputs['a'] and self._inputs['b']):
-            self._outputs['q'] = True
-        else:
-            self._outputs['q'] = False
+        self._outputs['q'] = self._inputs['a'] or self._inputs['b'] \
+            and not (self._inputs['a'] and self._inputs['b'])
 
 
 class XNORGate(Device):
@@ -165,8 +147,5 @@ class XNORGate(Device):
         """\
         Update outputs based on inputs.
         """
-        if self._inputs['a'] or self._inputs['b'] \
-        and not (self._inputs['a'] and self._inputs['b']):
-            self._outputs['q'] = False
-        else:
-            self._outputs['q'] = True
+        self._outputs['q'] = not (self._inputs['a'] or self._inputs['b'] \
+            and not (self._inputs['a'] and self._inputs['b']))

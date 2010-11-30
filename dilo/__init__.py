@@ -16,5 +16,5 @@ Dilopad - Digital Logic Scratchpad and Simulator
 
 __version__ = (0, 0, 0)
 
-__all__ = ['device']
+__all__ = ['boolean', 'device']
 __name__ = 'dilo'

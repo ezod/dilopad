@@ -10,15 +10,38 @@ Unit tests for Dilopad.
 
 import unittest
 
+from dilo.boolean import BooleanVariable, BooleanSum, BooleanProduct
 from dilo.device import Circuit
-from dilo.devices.gates import NOTGate, ANDGate, ORGate, NORGate
+from dilo.devices.gates import NOTGate, ANDGate, ORGate, NANDGate, NORGate, XNORGate
 
 
 class TestExamples(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_combinational_simple(self):
+    def test_boolean(self):
+        result = []
+        F = BooleanSum((\
+                BooleanProduct((\
+                    BooleanSum((\
+                        BooleanVariable(('A', False)),
+                        BooleanVariable(('B', True))\
+                    )),
+                    BooleanVariable(('C', True))\
+                )),
+                BooleanProduct((\
+                    BooleanVariable(('C', False)),
+                    BooleanVariable(('D', True))\
+                ))\
+            ))
+        for a in [False, True]:
+            for b in [False, True]:
+                for c in [False, True]:
+                    for d in [False, True]:
+                        result.append(F.evaluate({'A': a, 'B': b, 'C': c, 'D': d}))
+        self.assertEqual(result, [False, True, True, True, False, True, True, True, False, True, False, False, False, True, True, True])
+
+    def test_combinational(self):
         result = []
         C = Circuit()
         C.add('one', NOTGate())
@@ -39,6 +62,79 @@ class TestExamples(unittest.TestCase):
                     C.set_input('three.b', z)
                     result.append(C.get_output('five.q'))
         self.assertEqual(result, [True, False, True, True] + [False] * 4)
+
+    def test_combinational_boolean(self):
+        C = Circuit()
+        C.add('one', XNORGate())
+        C.add('two', NOTGate())
+        C.add('three', ANDGate())
+        C.add('four', ANDGate())
+        C.add('five', ANDGate())
+        C.add('six', NANDGate())
+        C.add('seven', ORGate())
+        C.add('eight', ANDGate())
+        C.add('nine', NOTGate())
+        C.add('ten', ORGate())
+        C.add('eleven', ORGate())
+        C.connect('one', 'q', 'three', 'a')
+        C.connect('two', 'q', 'four', 'a')
+        C.connect('three', 'q', 'seven', 'a')
+        C.connect('four', 'q', 'seven', 'b')
+        C.connect('four', 'q', 'eight', 'a')
+        C.connect('five', 'q', 'ten', 'a')
+        C.connect('six', 'q', 'ten', 'b')
+        C.connect('eight', 'q', 'eleven', 'a')
+        C.connect('nine', 'q', 'eleven', 'b')
+        C.connect('eleven', 'q', 'five', 'a')
+        F = BooleanSum((\
+                BooleanProduct((\
+                    BooleanVariable(('y', False)),
+                    BooleanVariable(('z', True))\
+                )),
+                BooleanProduct((\
+                    BooleanVariable(('w', True)),
+                    BooleanVariable(('x', True)),
+                    BooleanVariable(('y', True))
+                )),
+                BooleanProduct((\
+                    BooleanVariable(('w', False)),
+                    BooleanVariable(('x', False)),
+                    BooleanVariable(('y', True))
+                ))\
+            ))
+        G = BooleanSum((\
+                BooleanVariable(('x', False)),
+                BooleanProduct((\
+                    BooleanVariable(('y', False)),
+                    BooleanVariable(('z', True))\
+                ))\
+            ))
+        H = BooleanSum((\
+                BooleanProduct((\
+                    BooleanVariable(('w', True)),
+                    BooleanVariable(('x', False))\
+                )),
+                BooleanVariable(('y', False)),
+                BooleanVariable(('z', False))\
+            ))
+        for w in [False, True]:
+            for x in [False, True]:
+                for y in [False, True]:
+                    for z in [False, True]:
+                        C.set_input('one.a', w)
+                        C.set_input('five.b', w)
+                        C.set_input('one.b', x)
+                        C.set_input('eight.b', x)
+                        C.set_input('nine.a', x)
+                        C.set_input('three.b', y)
+                        C.set_input('two.a', y)
+                        C.set_input('six.a', y)
+                        C.set_input('four.b', z)
+                        C.set_input('six.b', z)
+                        values = {'w': w, 'x': x, 'y': y, 'z': z}
+                        self.assertEqual(C.get_output('seven.q'), F.evaluate(values))
+                        self.assertEqual(C.get_output('eleven.q'), G.evaluate(values))
+                        self.assertEqual(C.get_output('ten.q'), H.evaluate(values))
 
     def test_latch_sr_nor(self):
         result = []

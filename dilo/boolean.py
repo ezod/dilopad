@@ -29,9 +29,9 @@ class BooleanVariable(tuple):
         String representation.
         """
         if self[1]:
-            return self[0]
+            return str(self[0])
         else:
-            return self[0] + '\''
+            return str(self[0]) + '\''
 
     def evaluate(self, values):
         """\
@@ -43,12 +43,12 @@ class BooleanVariable(tuple):
         @rtype: C{bool}
         """
         try:
-            if self[1]:
-                return values[self[0]]
-            else:
-                return not values[self[0]]
-        except KeyError:
-            raise KeyError('missing variable value')
+            return (not self[1]) is not self[0].evaluate(values)
+        except AttributeError:
+            try:
+                return (not self[1]) is not values[self[0]]
+            except KeyError:
+                raise KeyError('missing variable value')
 
 
 class BooleanSum(tuple):
@@ -96,7 +96,7 @@ class BooleanProduct(tuple):
         """\
         String representation.
         """
-        return ' * '.join([str(expression) for expression in self])
+        return '(' + ' * '.join([str(expression) for expression in self]) + ')'
 
     def evaluate(self, values):
         """\

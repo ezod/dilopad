@@ -21,25 +21,27 @@ class TestExamples(unittest.TestCase):
 
     def test_boolean(self):
         result = []
-        F = BooleanSum((\
-                BooleanProduct((\
-                    BooleanSum((\
-                        BooleanVariable(('A', False)),
-                        BooleanVariable(('B', True))\
+        F = BooleanVariable((
+                BooleanSum((\
+                    BooleanProduct((\
+                        BooleanSum((\
+                            BooleanVariable(('A', False)),
+                            BooleanVariable(('B', True))\
+                        )),
+                        BooleanVariable(('C', True))\
                     )),
-                    BooleanVariable(('C', True))\
-                )),
-                BooleanProduct((\
-                    BooleanVariable(('C', False)),
-                    BooleanVariable(('D', True))\
-                ))\
+                    BooleanProduct((\
+                        BooleanVariable(('C', False)),
+                        BooleanVariable(('D', True))\
+                    ))\
+                )), False\
             ))
         for a in [False, True]:
             for b in [False, True]:
                 for c in [False, True]:
                     for d in [False, True]:
                         result.append(F.evaluate({'A': a, 'B': b, 'C': c, 'D': d}))
-        self.assertEqual(result, [False, True, True, True, False, True, True, True, False, True, False, False, False, True, True, True])
+        self.assertEqual(result, [True, False, False, False, True, False, False, False, True, False, True, True, True, False, False, False])
 
     def test_combinational(self):
         result = []

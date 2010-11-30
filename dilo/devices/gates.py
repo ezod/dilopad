@@ -127,7 +127,7 @@ class XORGate(Device):
         """\
         Update outputs based on inputs.
         """
-        self._outputs['q'] = self._inputs['a'] or self._inputs['b'] \
+        self._outputs['q'] = (self._inputs['a'] or self._inputs['b']) \
             and not (self._inputs['a'] and self._inputs['b'])
 
 
@@ -147,5 +147,5 @@ class XNORGate(Device):
         """\
         Update outputs based on inputs.
         """
-        self._outputs['q'] = not (self._inputs['a'] or self._inputs['b'] \
+        self._outputs['q'] = not ((self._inputs['a'] or self._inputs['b']) \
             and not (self._inputs['a'] and self._inputs['b']))

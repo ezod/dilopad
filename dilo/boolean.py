@@ -14,28 +14,34 @@ Boolean algebra module.
 @license: GPL-3
 """
 
-class BooleanVariable(tuple):
+class BooleanExpression(object):
     """\
-    Boolean variable class.
+    Boolean expression class.
     """
-    def __new__(cls, iterable):
+    def __init__(self, term, complemented=False):
         """\
         Constructor.
+
+        @param term: The term of the Boolean expression.
+        @type term: C{str} or L{BooleanSum} or L{BooleanProduct}
+        @param complement: True if the expression is complemented.
+        @type complement: C{bool}
         """
-        return tuple.__new__(cls, iterable)
+        self.term = term
+        self.complemented = complemented
 
     def __str__(self):
         """\
         String representation.
         """
-        if self[1]:
-            return str(self[0])
+        if self.complemented:
+            return str(self.term) + '\''
         else:
-            return str(self[0]) + '\''
+            return str(self.term)
 
     def evaluate(self, values):
-        """\
-        Evaluate this boolean sum for a given set of variable values.
+        """
+        Evaluate this Boolean expression for a given set of variable values.
         
         @param values: The variable values.
         @type values: C{dict} of C{bool}
@@ -43,10 +49,10 @@ class BooleanVariable(tuple):
         @rtype: C{bool}
         """
         try:
-            return (not self[1]) is not self[0].evaluate(values)
+            return self.complemented is not self.term.evaluate(values)
         except AttributeError:
             try:
-                return (not self[1]) is not values[self[0]]
+                return self.complemented is not values[self.term]
             except KeyError:
                 raise KeyError('missing variable value')
 

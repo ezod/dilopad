@@ -10,7 +10,7 @@ Unit tests for Dilopad.
 
 import unittest
 
-from dilo.boolean import BooleanVariable, BooleanSum, BooleanProduct
+from dilo.boolean import BooleanExpression, BooleanSum, BooleanProduct
 from dilo.device import Circuit
 from dilo.devices.gates import NOTGate, ANDGate, ORGate, NANDGate, NORGate, XNORGate
 
@@ -21,21 +21,21 @@ class TestExamples(unittest.TestCase):
 
     def test_boolean(self):
         result = []
-        F = BooleanVariable((
+        F = BooleanExpression(\
                 BooleanSum((\
                     BooleanProduct((\
                         BooleanSum((\
-                            BooleanVariable(('A', False)),
-                            BooleanVariable(('B', True))\
+                            BooleanExpression('A', complemented=True),
+                            BooleanExpression('B')\
                         )),
-                        BooleanVariable(('C', True))\
+                        BooleanExpression('C')\
                     )),
                     BooleanProduct((\
-                        BooleanVariable(('C', False)),
-                        BooleanVariable(('D', True))\
+                        BooleanExpression('C', complemented=True),
+                        BooleanExpression('D')\
                     ))\
-                )), False\
-            ))
+                )), complemented=True\
+            )
         for a in [False, True]:
             for b in [False, True]:
                 for c in [False, True]:
@@ -90,34 +90,34 @@ class TestExamples(unittest.TestCase):
         C.connect('eleven', 'q', 'five', 'a')
         F = BooleanSum((\
                 BooleanProduct((\
-                    BooleanVariable(('y', False)),
-                    BooleanVariable(('z', True))\
+                    BooleanExpression('y', complemented=True),
+                    BooleanExpression('z')\
                 )),
                 BooleanProduct((\
-                    BooleanVariable(('w', True)),
-                    BooleanVariable(('x', True)),
-                    BooleanVariable(('y', True))
+                    BooleanExpression('w'),
+                    BooleanExpression('x'),
+                    BooleanExpression('y')
                 )),
                 BooleanProduct((\
-                    BooleanVariable(('w', False)),
-                    BooleanVariable(('x', False)),
-                    BooleanVariable(('y', True))
+                    BooleanExpression('w', complemented=True),
+                    BooleanExpression('x', complemented=True),
+                    BooleanExpression('y')
                 ))\
             ))
         G = BooleanSum((\
-                BooleanVariable(('x', False)),
+                BooleanExpression('x', complemented=True),
                 BooleanProduct((\
-                    BooleanVariable(('y', False)),
-                    BooleanVariable(('z', True))\
+                    BooleanExpression('y', complemented=True),
+                    BooleanExpression('z')\
                 ))\
             ))
         H = BooleanSum((\
                 BooleanProduct((\
-                    BooleanVariable(('w', True)),
-                    BooleanVariable(('x', False))\
+                    BooleanExpression('w'),
+                    BooleanExpression('x', complemented=True)\
                 )),
-                BooleanVariable(('y', False)),
-                BooleanVariable(('z', False))\
+                BooleanExpression('y', complemented=True),
+                BooleanExpression('z', complemented=True)\
             ))
         for w in [False, True]:
             for x in [False, True]:

@@ -23,7 +23,7 @@ class BooleanExpression(object):
         Constructor.
 
         @param term: The term of the Boolean expression.
-        @type term: C{str} or L{BooleanSum} or L{BooleanProduct}
+        @type term: C{str} or L{BooleanExpression}
         @param complement: True if the expression is complemented.
         @type complement: C{bool}
         """
@@ -57,16 +57,21 @@ class BooleanExpression(object):
                 raise KeyError('missing variable value')
 
 
-class BooleanSum(tuple):
+class BooleanSum(BooleanExpression):
     """\
     Boolean sum class.
     """
-    def __new__(cls, iterable):
+    def __init__(self, term, complemented=False):
         """\
         Constructor.
+
+        @param term: The term of the Boolean expression.
+        @type term: C{str} or L{BooleanExpression}
+        @param complement: True if the expression is complemented.
+        @type complement: C{bool}
         """
-        return tuple.__new__(cls, iterable)
-    
+        super(BooleanSum, self).__init__(term, complemented)
+
     def __str__(self):
         """\
         String representation.
@@ -83,20 +88,25 @@ class BooleanSum(tuple):
         @rtype: C{bool}
         """
         value = False
-        for expression in self:
+        for expression in self.term:
             value = value or expression.evaluate(values)
-        return value
+        return self.complemented is not value
 
 
-class BooleanProduct(tuple):
+class BooleanProduct(BooleanExpression):
     """\
     Boolean product class.
     """
-    def __new__(cls, iterable):
+    def __init__(self, term, complemented=False):
         """\
         Constructor.
+
+        @param term: The term of the Boolean expression.
+        @type term: C{str} or L{BooleanExpression}
+        @param complement: True if the expression is complemented.
+        @type complement: C{bool}
         """
-        return tuple.__new__(cls, iterable)
+        super(BooleanProduct, self).__init__(term, complemented)
 
     def __str__(self):
         """\
@@ -114,6 +124,6 @@ class BooleanProduct(tuple):
         @rtype: C{bool}
         """
         value = True
-        for expression in self:
+        for expression in self.term:
             value = value and expression.evaluate(values)
-        return value
+        return self.complemented is not value

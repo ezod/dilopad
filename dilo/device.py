@@ -295,9 +295,9 @@ class Circuit(Device):
         """
         # delete connections
         for connection in self._connections.keys():
-            if connection.startswith(deviceid):
+            if connection[0] == deviceid:
                 del self._connections[connection]
-            elif self._connections[connection].startswith(deviceid):
+            elif self._connections[connection][0] == deviceid:
                 del self._connections[connection]
         # delete cached outputs
         for cached_output in self._cached_outputs.keys():
@@ -306,12 +306,12 @@ class Circuit(Device):
         # delete labels
         for inputid in self._devices[deviceid].inputs:
             for label in self._inputs.keys():
-                self._inputs[label].discard(inputid)
+                self._inputs[label].discard('%s.%s' % (deviceid, inputid))
                 if not len(self._inputs[label]):
                     del self._inputs[label]
         for outputid in self._devices[deviceid].outputs:
             for label in self._outputs.keys():
-                if self._outputs[label] == outputid:
+                if self._outputs[label] == '%s.%s' % (deviceid, outputid):
                     del self._outputs[label]
         # delete device
         del self._devices[deviceid]

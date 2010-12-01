@@ -18,7 +18,7 @@ from copy import copy
 
 
 def binary_combinations(variables, combination={}):
-    variables = copy(variables)
+    variables, combination = copy(variables), copy(combination)
     variable = variables.pop(0)
     for value in [False, True]:
         combination[variable] = value

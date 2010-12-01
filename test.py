@@ -74,6 +74,13 @@ class TestExamples(unittest.TestCase):
         C.connect('eight', 'q', 'eleven', 'a')
         C.connect('nine', 'q', 'eleven', 'b')
         C.connect('eleven', 'q', 'five', 'a')
+        C.label_inputs('w', ['one.a', 'five.b'])
+        C.label_inputs('x', ['one.b', 'eight.b', 'nine.a'])
+        C.label_inputs('y', ['three.b', 'two.a', 'six.a'])
+        C.label_inputs('z', ['four.b', 'six.b'])
+        C.label_output('F', 'seven.q')
+        C.label_output('G', 'eleven.q')
+        C.label_output('H', 'ten.q')
         F = BooleanExpression("y' * z + w * x * y + w' * x' * y")
         G = BooleanExpression("x' + y' * z")
         H = BooleanExpression("w * x' + y' + z'")
@@ -81,20 +88,14 @@ class TestExamples(unittest.TestCase):
             for x in [False, True]:
                 for y in [False, True]:
                     for z in [False, True]:
-                        C.set_input('one.a', w)
-                        C.set_input('five.b', w)
-                        C.set_input('one.b', x)
-                        C.set_input('eight.b', x)
-                        C.set_input('nine.a', x)
-                        C.set_input('three.b', y)
-                        C.set_input('two.a', y)
-                        C.set_input('six.a', y)
-                        C.set_input('four.b', z)
-                        C.set_input('six.b', z)
+                        C.set_input('w', w)
+                        C.set_input('x', x)
+                        C.set_input('y', y)
+                        C.set_input('z', z)
                         values = {'w': w, 'x': x, 'y': y, 'z': z}
-                        self.assertEqual(C.get_output('seven.q'), F.evaluate(values))
-                        self.assertEqual(C.get_output('eleven.q'), G.evaluate(values))
-                        self.assertEqual(C.get_output('ten.q'), H.evaluate(values))
+                        self.assertEqual(C.get_output('F'), F.evaluate(values))
+                        self.assertEqual(C.get_output('G'), G.evaluate(values))
+                        self.assertEqual(C.get_output('H'), H.evaluate(values))
 
     def test_latch_sr_nor(self):
         result = []

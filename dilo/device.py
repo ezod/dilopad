@@ -74,6 +74,37 @@ class Device(object):
         raise NotImplementedError('_update method must be overridden')
 
 
+class Logic0(Device):
+    """\
+    Logic zero.
+    """
+    def __init__(self):
+        super(Logic0, self).__init__()
+        self._outputs = {'q': False}
+
+
+class Logic1(Device):
+    """\
+    Logic one.
+    """
+    def __init__(self):
+        super(Logic1, self).__init__()
+        self._outputs = {'q': True}
+
+
+class Buffer(Device):
+    """\
+    Buffer/node device class.
+    """
+    def __init__(self):
+        super(Buffer, self).__init__()
+        self._inputs = {'a': False}
+        self._outputs = {'q': True}
+
+    def _update(self):
+        self._outputs['q'] = self._inputs['a']
+
+
 class Circuit(Device):
     """\
     Circuit class. Hierarchical container for Device objects which itself
@@ -85,16 +116,27 @@ class Circuit(Device):
         self._connections = {}
         self._cached_outputs = {}
 
+    def _internal_inputs(self):
+        return ['%s.%s' % (deviceid, inputid) \
+            for deviceid in self._devices.keys() \
+            for inputid in self._devices[deviceid].inputs \
+            if not self._connections.has_key((deviceid, inputid))]
+    
+    def _internal_outputs(self):
+        return ['%s.%s' % (deviceid, outputid) \
+            for deviceid in self._devices.keys() \
+            for outputid in self._devices[deviceid].outputs]
+        
     @property
     def inputs(self):
         """\
         A list of inputs to this circuit. By default, the set of inputs is
         generated as all unconnected inputs of the circuit's devices.
         """
-        return ['%s.%s' % (deviceid, inputid) \
-            for deviceid in self._devices.keys() \
-            for inputid in self._devices[deviceid].inputs \
-            if not self._connections.has_key((deviceid, inputid))]
+        if len(self._inputs):
+            return self._inputs.keys()
+        else:
+            return self._internal_inputs()
 
     @property
     def outputs(self):
@@ -102,9 +144,10 @@ class Circuit(Device):
         A list of outputs from this circuit. By default, the set of outputs is
         generated as all outputs of the circuit's devices.
         """
-        return ['%s.%s' % (deviceid, outputid) \
-            for deviceid in self._devices.keys() \
-            for outputid in self._devices[deviceid].outputs]
+        if len(self._outputs):
+            return self._outputs.keys()
+        else:
+            return self._internal_outputs()
 
     def add(self, deviceid, device):
         """\
@@ -126,27 +169,41 @@ class Circuit(Device):
 
     def remove(self, deviceid):
         """\
-        Remove a device from the circuit and delete all of its connections and
-        cached outputs.
+        Remove a device from the circuit and delete all of its connections,
+        cached outputs, and labels.
 
         @param deviceid: The ID of the device to remove.
         @type deviceid: C{str}
         """
+        # delete connections
         for connection in self._connections.keys():
             if connection.startswith(deviceid):
                 del self._connections[connection]
             elif self._connections[connection].startswith(deviceid):
                 del self._connections[connection]
+        # delete cached outputs
         for cached_output in self._cached_outputs.keys():
             if cached_output[0] == deviceid:
                 del self._cached_outputs[cached_output]
+        # delete labels
+        for inputid in self._devices[deviceid].inputs:
+            for label in self._inputs.keys():
+                self._inputs[label].discard(inputid)
+                if not len(self._inputs[label]):
+                    del self._inputs[label]
+        for outputid in self._devices[deviceid].outputs:
+            for label in self._outputs.keys():
+                if self._outputs[label] == outputid:
+                    del self._outputs[label]
+        # delete device
         del self._devices[deviceid]
 
     def connect(self, srcid, outputid, dstid, inputid):
         """\
         Connect the output of a device in this circuit to the input of another
         device in this circuit. If the input is already connected, this will
-        silently replace the previous connection.
+        silently replace the previous connection. If the input is assigned to a
+        label, this will silently discard the label.
 
         @param srcid: The ID of the source device.
         @param outputid: The output ID from the source device.
@@ -160,6 +217,10 @@ class Circuit(Device):
         except KeyError:
             raise KeyError('invalid device')
         self._connections[(dstid, inputid)] = (srcid, outputid)
+        for label in self._inputs.keys():
+            self._inputs[label].discard('%s.%s' % (dstid, inputid))
+            if not len(self._inputs[label]):
+                del self._inputs[label]
         self._devices[dstid].set_input(inputid,
             self._devices[srcid].get_output(outputid))
         self._update()
@@ -170,7 +231,34 @@ class Circuit(Device):
         """
         del self._connections[(deviceid, inputid)]
 
-    def set_input(self, inputid, value):
+    def label_inputs(self, label, dstinputs):
+        """\
+        Create a transparent input alias for a set of inputs.
+
+        @param label: The label to assign the new input alias.
+        @type label: C{str}
+        @param dstinputs: A set of inputs to assign to the alias.
+        @type dstinputs: C{set} of C{str}
+        """
+        for dstinput in dstinputs:
+            if dstinput not in self._internal_inputs():
+                raise KeyError('invalid input %s' % dstinput)
+        self._inputs[label] = set(dstinputs)
+
+    def label_output(self, label, srcoutput):
+        """\
+        Create a transparent input alias for an output.
+
+        @param label: The label to assign the new output alias.
+        @type label: C{str}
+        @param srcoutputs: The output to assign to the alias.
+        @type srcoutput: C{str}
+        """
+        if srcoutput not in self._internal_outputs():
+            raise KeyError('invalid output %s' % srcoutput)
+        self._outputs[label] = srcoutput
+
+    def set_input(self, inputid, value, internal=False):
         """\
         Set an input to a specified value.
 
@@ -179,26 +267,32 @@ class Circuit(Device):
         @param value: The value to set.
         @type value: C{bool}
         """
-        if not inputid in self.inputs:
+        if not internal and not inputid in self.inputs:
             raise KeyError('no input %s' % inputid)
-        deviceid = inputid.split('.')[0]
-        inputid = '.'.join(inputid.split('.')[1:])
-        self._devices[deviceid].set_input(inputid, value)
+        if not internal and len(self._inputs):
+            for dstinput in self._inputs[inputid]:
+                self.set_input(dstinput, value, internal=True)
+        else:
+            deviceid = inputid.split('.')[0]
+            inputid = '.'.join(inputid.split('.')[1:])
+            self._devices[deviceid].set_input(inputid, value)
         self._update()
 
-    def get_output(self, outputid):
+    def get_output(self, outputid, internal=False):
         """\
         Get the value of an output.
 
         @param outputid: The output ID.
         @type outputid: C{str}
         """
-        deviceid = outputid.split('.')[0]
-        outputid = '.'.join(outputid.split('.')[1:])
-        try:
+        if not internal and not outputid in self.outputs:
+            raise KeyError('no output %s' % outputid)
+        if not internal and len(self._outputs):
+            return self.get_output(self._outputs[outputid], internal=True)
+        else:
+            deviceid = outputid.split('.')[0]
+            outputid = '.'.join(outputid.split('.')[1:])
             return self._devices[deviceid].get_output(outputid)
-        except KeyError:
-            raise KeyError('no output %s.%s' % (deviceid, outputid))
 
     def _update(self):
         """\
@@ -210,7 +304,7 @@ class Circuit(Device):
             count += 1
             change = False
             for cached_output in self._cached_outputs.keys():
-                if self.get_output('%s.%s' % cached_output) != \
+                if self.get_output('%s.%s' % cached_output, internal=True) != \
                 self._cached_outputs[cached_output]:
                     self._cached_outputs[cached_output] = \
                         not self._cached_outputs[cached_output]

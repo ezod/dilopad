@@ -14,125 +14,67 @@ Boolean algebra module.
 @license: GPL-3
 """
 
+from re import sub
+from pyparsing import Word, alphas, oneOf, operatorPrecedence, opAssoc
+
+
 class BooleanExpression(object):
     """\
     Boolean expression class.
     """
-    def __init__(self, term, complemented=False):
-        """\
-        Constructor.
-
-        @param term: The term of the Boolean expression.
-        @type term: C{str} or L{BooleanExpression}
-        @param complement: True if the expression is complemented.
-        @type complement: C{bool}
-        """
-        self.term = term
-        self.complemented = complemented
-
-    def __str__(self):
-        """\
-        String representation.
-        """
-        string = str(self.term)
-        if self.complemented:
-            if isinstance(self.term, BooleanSum) \
-            or isinstance(self.term, BooleanProduct):
-                string = '(' + string + ')'
-            string = string + '\''
-        return string
+    def __init__(self, expression):
+        self.expression = expression
 
     def evaluate(self, values):
-        """
-        Evaluate this Boolean expression for a given set of variable values.
-        
-        @param values: The variable values.
-        @type values: C{dict} of C{bool}
-        @return: The value of the boolean expression.
-        @rtype: C{bool}
-        """
-        try:
-            return self.complemented is not self.term.evaluate(values)
-        except AttributeError:
-            try:
-                return self.complemented is not values[self.term]
-            except KeyError:
-                raise KeyError('missing variable value')
+        class BooleanOperator(object):
+            def __init__(self, t):
+                self.args = t[0][0::2]
+            def __str__(self):
+                sep = ' %s ' % self.symbol
+                return '(' + sep.join(map(str, self.args)) + ')'
 
+        class BooleanAnd(BooleanOperator):
+            symbol = '*'
+            def __nonzero__(self):
+                for a in self.args:
+                    if isinstance(a, basestring):
+                        v = values[a]
+                    else:
+                        v = bool(a)
+                    if not v:
+                        return False
+                return True
 
-class BooleanSum(BooleanExpression):
-    """\
-    Boolean sum class.
-    """
-    def __init__(self, term, complemented=False):
-        """\
-        Constructor.
+        class BooleanOr(BooleanOperator):
+            symbol = '+'
+            def __nonzero__(self):
+                for a in self.args:
+                    if isinstance(a, basestring):
+                        v = values[a]
+                    else:
+                        v = bool(a)
+                    if v:
+                        return True
+                return False
 
-        @param term: The term of the Boolean expression.
-        @type term: C{str} or L{BooleanExpression}
-        @param complement: True if the expression is complemented.
-        @type complement: C{bool}
-        """
-        super(BooleanSum, self).__init__(term, complemented)
+        class BooleanNot(BooleanOperator):
+            def __init__(self, t):
+                self.arg = t[0][0]
+            def __str__(self):
+                return str(self.arg) + '\''
+            def __nonzero__(self):
+                if isinstance(self.arg, basestring):
+                    v = values[self.arg]
+                else:
+                    v = bool(self.arg)
+                return not v
 
-    def __str__(self):
-        """\
-        String representation.
-        """
-        return ' + '.join([str(expression) for expression in self.term])
+        BooleanOperand = Word(alphas, max=1) | oneOf('1 0')
 
-    def evaluate(self, values):
-        """\
-        Evaluate this boolean sum for a given set of variable values.
-        
-        @param values: The variable values.
-        @type values: C{dict} of C{bool}
-        @return: The value of the boolean expression.
-        @rtype: C{bool}
-        """
-        value = False
-        for expression in self.term:
-            value = value or expression.evaluate(values)
-        return self.complemented is not value
+        BooleanAlgebra = operatorPrecedence(BooleanOperand,
+            [('!', 1, opAssoc.LEFT, BooleanNot),
+             ('*', 2, opAssoc.LEFT, BooleanAnd),
+             ('+', 2, opAssoc.LEFT, BooleanOr)])
 
-
-class BooleanProduct(BooleanExpression):
-    """\
-    Boolean product class.
-    """
-    def __init__(self, term, complemented=False):
-        """\
-        Constructor.
-
-        @param term: The term of the Boolean expression.
-        @type term: C{str} or L{BooleanExpression}
-        @param complement: True if the expression is complemented.
-        @type complement: C{bool}
-        """
-        super(BooleanProduct, self).__init__(term, complemented)
-
-    def __str__(self):
-        """\
-        String representation.
-        """
-        strings = []
-        for expression in self.term:
-            if isinstance(expression, BooleanSum):
-                strings.append('(' + str(expression) + ')')
-            else:
-                strings.append(str(expression))
-        return ' * '.join(strings)
-
-    def evaluate(self, values):
-        """\
-        Evaluate this boolean product for a given set of variable values.
-        
-        @param values: The variable values.
-        @type values: C{dict} of C{bool}
-        @return: The value of the boolean expression.
-        @rtype: C{bool}
-        """
-        value = True
-        for expression in self.term:
-            value = value and expression.evaluate(values)
-        return self.complemented is not value
+        res = BooleanAlgebra.parseString(sub('\'', '!', self.expression))[0]
+        return bool(res)

@@ -32,14 +32,18 @@ class Device(object):
         """\
         A list of inputs to this device.
         """
-        return self._inputs.keys()
+        inputs = self._inputs.keys()
+        inputs.sort()
+        return inputs
 
     @property
     def outputs(self):
         """\
         A list of outputs from this device.
         """
-        return self._outputs.keys()
+        outputs = self._outputs.keys()
+        outputs.sort()
+        return outputs
 
     def set_input(self, inputid, value):
         """\
@@ -140,7 +144,7 @@ class Sender(Buffer):
     """\
     Sender class.
     """
-    outputs = {}
+    outputs = []
 
     def __init__(self):
         """\
@@ -192,7 +196,7 @@ class Receiver(Buffer):
     """\
     Receiver class.
     """
-    inputs = {}
+    inputs = []
 
     def __init__(self):
         """\
@@ -244,9 +248,11 @@ class Circuit(Device):
         generated as all unconnected inputs of the circuit's devices.
         """
         if len(self._inputs):
-            return self._inputs.keys()
+            inputs = self._inputs.keys()
         else:
-            return self._internal_inputs()
+            inputs = self._internal_inputs()
+        inputs.sort()
+        return inputs
 
     @property
     def outputs(self):
@@ -255,9 +261,11 @@ class Circuit(Device):
         generated as all outputs of the circuit's devices.
         """
         if len(self._outputs):
-            return self._outputs.keys()
+            outputs = self._outputs.keys()
         else:
-            return self._internal_outputs()
+            outputs = self._internal_outputs()
+        outputs.sort()
+        return outputs
 
     def add(self, deviceid, device):
         """\

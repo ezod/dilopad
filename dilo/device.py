@@ -67,6 +67,16 @@ class Device(object):
         except KeyError:
             raise KeyError('no output %s' % outputid)
 
+    def apply_inputs(self, values):
+        """\
+        Apply a set of values to the inputs.
+
+        @param values: The values to apply, keyed by input ID.
+        @type values: C{dict} of C{bool}
+        """
+        for inputid in values.keys():
+            self.set_input(inputid, values[inputid])
+
     def _update(self):
         """\
         Update outputs based on inputs.
@@ -293,16 +303,6 @@ class Circuit(Device):
             deviceid = outputid.split('.')[0]
             outputid = '.'.join(outputid.split('.')[1:])
             return self._devices[deviceid].get_output(outputid)
-
-    def apply_inputs(self, values):
-        """\
-        Apply a set of values to the inputs.
-
-        @param values: The values to apply, keyed by input ID.
-        @type values: C{dict} of C{bool}
-        """
-        for inputid in values.keys():
-            self.set_input(inputid, values[inputid])
 
     def _update(self):
         """\

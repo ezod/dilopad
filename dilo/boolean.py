@@ -34,10 +34,13 @@ class BooleanExpression(object):
         """\
         String representation.
         """
+        string = str(self.term)
         if self.complemented:
-            return str(self.term) + '\''
-        else:
-            return str(self.term)
+            if isinstance(self.term, BooleanSum) \
+            or isinstance(self.term, BooleanProduct):
+                string = '(' + string + ')'
+            string = string + '\''
+        return string
 
     def evaluate(self, values):
         """
@@ -76,7 +79,7 @@ class BooleanSum(BooleanExpression):
         """\
         String representation.
         """
-        return '(' + ' + '.join([str(expression) for expression in self]) + ')'
+        return ' + '.join([str(expression) for expression in self.term])
 
     def evaluate(self, values):
         """\
@@ -112,7 +115,13 @@ class BooleanProduct(BooleanExpression):
         """\
         String representation.
         """
-        return '(' + ' * '.join([str(expression) for expression in self]) + ')'
+        strings = []
+        for expression in self.term:
+            if isinstance(expression, BooleanSum):
+                strings.append('(' + str(expression) + ')')
+            else:
+                strings.append(str(expression))
+        return ' * '.join(strings)
 
     def evaluate(self, values):
         """\

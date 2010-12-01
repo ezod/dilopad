@@ -13,6 +13,7 @@ import unittest
 from dilo.boolean import BooleanExpression
 from dilo.device import Circuit
 from dilo.devices.gates import NOTGate, ANDGate, ORGate, NANDGate, NORGate, XNORGate
+from dilo.truth import binary_combinations
 
 
 class TestExamples(unittest.TestCase):
@@ -84,18 +85,11 @@ class TestExamples(unittest.TestCase):
         F = BooleanExpression("y' * z + w * x * y + w' * x' * y")
         G = BooleanExpression("x' + y' * z")
         H = BooleanExpression("w * x' + y' + z'")
-        for w in [False, True]:
-            for x in [False, True]:
-                for y in [False, True]:
-                    for z in [False, True]:
-                        C.set_input('w', w)
-                        C.set_input('x', x)
-                        C.set_input('y', y)
-                        C.set_input('z', z)
-                        values = {'w': w, 'x': x, 'y': y, 'z': z}
-                        self.assertEqual(C.get_output('F'), F.evaluate(values))
-                        self.assertEqual(C.get_output('G'), G.evaluate(values))
-                        self.assertEqual(C.get_output('H'), H.evaluate(values))
+        for values in binary_combinations(C.inputs):
+            C.apply_inputs(values)
+            self.assertEqual(C.get_output('F'), F.evaluate(values))
+            self.assertEqual(C.get_output('G'), G.evaluate(values))
+            self.assertEqual(C.get_output('H'), H.evaluate(values))
 
     def test_latch_sr_nor(self):
         result = []

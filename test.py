@@ -10,10 +10,58 @@ Unit tests for Dilopad.
 
 import unittest
 
-from dilo.boolean import BooleanExpression
-from dilo.device import Circuit
-from dilo.devices.gates import NOTGate, ANDGate, ORGate, NANDGate, NORGate, XNORGate
-from dilo.truth import binary_combinations
+from dilo.boolean import *
+from dilo.device import *
+from dilo.truth import *
+from dilo.devices.gates import *
+
+
+class TestCircuit(unittest.TestCase):
+    def setUp(self):
+        self.C = Circuit()
+        self.C.add('one', NOTGate())
+        self.C.add('two', ANDGate())
+        self.C.add('three', ORGate())
+        self.C.add('four', NOTGate())
+        self.C.add('five', ORGate())
+        self.C.connect('one', 'q', 'two', 'a')
+        self.C.connect('two', 'q', 'five', 'a')
+        self.C.connect('three', 'q', 'four', 'a')
+        self.C.connect('four', 'q', 'five', 'b')
+        self.C.label_inputs('x', ['one.a', 'three.a'])
+        self.C.label_inputs('y', ['two.b'])
+        self.C.label_inputs('z', ['three.b'])
+        self.C.label_output('F', 'five.q')
+
+    def test_function(self):
+        result = []
+        for values in binary_combinations(self.C.inputs):
+            self.C.apply_inputs(values)
+            result.append(self.C.get_output('F'))
+        self.assertEqual(result, [True, False, True, True] + [False] * 4)
+    
+    def test_remove(self):
+        self.assertTrue(self.C._connections.has_key(('two', 'a')))
+        self.assertEqual(self.C.inputs, ['x', 'y', 'z'])
+        self.assertEqual(self.C.outputs, ['F'])
+        self.C.remove('one')
+        self.assertFalse(self.C._connections.has_key(('two', 'a')))
+        self.assertEqual(self.C.inputs, ['x', 'y', 'z'])
+        self.C.remove('three')
+        self.assertEqual(self.C.inputs, ['y'])
+        self.C.remove('five')
+        self.assertEqual(self.C.outputs, ['four.q', 'two.q'])
+
+
+class TestTruth(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_binary_combinations(self):
+        C = binary_combinations(['x', 'y'])
+        for x in [False, True]:
+            for y in [False, True]:
+                self.assertEqual(C.next(), {'x': x, 'y': y})
 
 
 class TestExamples(unittest.TestCase):
@@ -26,27 +74,6 @@ class TestExamples(unittest.TestCase):
         for values in binary_combinations(['A', 'B', 'C', 'D']):
             result.append(F.evaluate(values))
         self.assertEqual(result, [True, False, False, False, True, False, False, False, True, False, True, True, True, False, False, False])
-
-    def test_combinational(self):
-        result = []
-        C = Circuit()
-        C.add('one', NOTGate())
-        C.add('two', ANDGate())
-        C.add('three', ORGate())
-        C.add('four', NOTGate())
-        C.add('five', ORGate())
-        C.connect('one', 'q', 'two', 'a')
-        C.connect('two', 'q', 'five', 'a')
-        C.connect('three', 'q', 'four', 'a')
-        C.connect('four', 'q', 'five', 'b')
-        C.label_inputs('x', ['one.a', 'three.a'])
-        C.label_inputs('y', ['two.b'])
-        C.label_inputs('z', ['three.b'])
-        C.label_output('F', 'five.q')
-        for values in binary_combinations(C.inputs):
-            C.apply_inputs(values)
-            result.append(C.get_output('F'))
-        self.assertEqual(result, [True, False, True, True] + [False] * 4)
 
     def test_combinational_boolean(self):
         C = Circuit()

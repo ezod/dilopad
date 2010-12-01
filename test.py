@@ -23,11 +23,8 @@ class TestExamples(unittest.TestCase):
     def test_boolean(self):
         result = []
         F = BooleanExpression("((A' + B) * C + C' * D)'")
-        for a in [False, True]:
-            for b in [False, True]:
-                for c in [False, True]:
-                    for d in [False, True]:
-                        result.append(F.evaluate({'A': a, 'B': b, 'C': c, 'D': d}))
+        for values in binary_combinations(['A', 'B', 'C', 'D']):
+            result.append(F.evaluate(values))
         self.assertEqual(result, [True, False, False, False, True, False, False, False, True, False, True, True, True, False, False, False])
 
     def test_combinational(self):
@@ -42,14 +39,13 @@ class TestExamples(unittest.TestCase):
         C.connect('two', 'q', 'five', 'a')
         C.connect('three', 'q', 'four', 'a')
         C.connect('four', 'q', 'five', 'b')
-        for x in [False, True]:
-            for y in [False, True]:
-                for z in [False, True]:
-                    C.set_input('one.a', x)
-                    C.set_input('three.a', x)
-                    C.set_input('two.b', y)
-                    C.set_input('three.b', z)
-                    result.append(C.get_output('five.q'))
+        C.label_inputs('x', ['one.a', 'three.a'])
+        C.label_inputs('y', ['two.b'])
+        C.label_inputs('z', ['three.b'])
+        C.label_output('F', 'five.q')
+        for values in binary_combinations(C.inputs):
+            C.apply_inputs(values)
+            result.append(C.get_output('F'))
         self.assertEqual(result, [True, False, True, True] + [False] * 4)
 
     def test_combinational_boolean(self):

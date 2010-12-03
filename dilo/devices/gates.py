@@ -16,6 +16,7 @@ Basic logic gates.
 
 from ..device import Device
 
+
 class NOTGate(Device):
     """\
     NOT gate class.

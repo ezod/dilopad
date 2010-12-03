@@ -6,5 +6,5 @@
             #
             #
 
-__all__ = ['gates']
+__all__ = ['basic', 'gates']
 __name__ = 'dilo.devices'

@@ -13,6 +13,7 @@ import unittest
 from dilo.boolean import *
 from dilo.device import *
 from dilo.truth import *
+from dilo.devices.basic import *
 from dilo.devices.gates import *
 
 

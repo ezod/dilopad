@@ -69,6 +69,25 @@ class Buffer(Device):
         self._outputs['q'] = self._inputs['a']
 
 
+class Inverter(Device):
+    """\
+    Inverter (NOT gate) class.
+    """
+    def __init__(self):
+        """\
+        Constructor.
+        """
+        super(Inverter, self).__init__()
+        self._inputs = {'a': False}
+        self._outputs = {'q': True}
+
+    def _update(self):
+        """\
+        Update outputs based on inputs.
+        """
+        self._outputs['q'] = not self._inputs['a']
+
+
 class Sender(Buffer):
     """\
     Sender class.

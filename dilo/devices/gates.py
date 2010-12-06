@@ -17,25 +17,6 @@ Basic logic gates.
 from ..device import Device
 
 
-class NOTGate(Device):
-    """\
-    NOT gate class.
-    """
-    def __init__(self):
-        """\
-        Constructor.
-        """
-        super(NOTGate, self).__init__()
-        self._inputs = {'a': False}
-        self._outputs = {'q': True}
-
-    def _update(self):
-        """\
-        Update outputs based on inputs.
-        """
-        self._outputs['q'] = not self._inputs['a']
-
-
 class ANDGate(Device):
     """\
     AND gate class.

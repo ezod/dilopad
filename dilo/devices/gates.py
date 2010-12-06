@@ -52,7 +52,7 @@ class ANDGate(Device):
         """\
         Update outputs based on inputs.
         """
-        self._outputs['q'] = self._inputs['a'] and self._inputs['b']
+        self._outputs['q'] = all(self._inputs.values())
 
 
 class ORGate(Device):
@@ -71,7 +71,7 @@ class ORGate(Device):
         """\
         Update outputs based on inputs.
         """
-        self._outputs['q'] = self._inputs['a'] or self._inputs['b']
+        self._outputs['q'] = any(self._inputs.values())
 
 
 class NANDGate(Device):
@@ -90,7 +90,7 @@ class NANDGate(Device):
         """\
         Update outputs based on inputs.
         """
-        self._outputs['q'] = not (self._inputs['a'] and self._inputs['b'])
+        self._outputs['q'] = not all(self._inputs.values())
 
 
 class NORGate(Device):
@@ -109,7 +109,7 @@ class NORGate(Device):
         """\
         Update outputs based on inputs.
         """
-        self._outputs['q'] = not (self._inputs['a'] or self._inputs['b'])
+        self._outputs['q'] = not any(self._inputs.values())
 
 
 class XORGate(Device):
@@ -128,8 +128,8 @@ class XORGate(Device):
         """\
         Update outputs based on inputs.
         """
-        self._outputs['q'] = (self._inputs['a'] or self._inputs['b']) \
-            and not (self._inputs['a'] and self._inputs['b'])
+        self._outputs['q'] = reduce(lambda a, b: any((a, b)) \
+                             and not all((a, b)), self._inputs.values())
 
 
 class XNORGate(Device):
@@ -148,5 +148,5 @@ class XNORGate(Device):
         """\
         Update outputs based on inputs.
         """
-        self._outputs['q'] = not ((self._inputs['a'] or self._inputs['b']) \
-            and not (self._inputs['a'] and self._inputs['b']))
+        self._outputs['q'] = not reduce(lambda a, b: any((a, b)) \
+                             and not all((a, b)), self._inputs.values())

@@ -42,11 +42,11 @@ class TestCircuit(unittest.TestCase):
         self.assertEqual(result, [True, False, True, True] + [False] * 4)
     
     def test_remove(self):
-        self.assertTrue(self.C._connections.has_key(('two', 'a')))
+        self.assertTrue(('two', 'a') in self.C._connections)
         self.assertEqual(self.C.inputs, ['x', 'y', 'z'])
         self.assertEqual(self.C.outputs, ['F'])
         self.C.remove('one')
-        self.assertFalse(self.C._connections.has_key(('two', 'a')))
+        self.assertFalse(('two', 'a') in self.C._connections)
         self.assertEqual(self.C.inputs, ['x', 'y', 'z'])
         self.C.remove('three')
         self.assertEqual(self.C.inputs, ['y'])
@@ -62,7 +62,7 @@ class TestTruth(unittest.TestCase):
         C = binary_combinations(['x', 'y'])
         for x in [False, True]:
             for y in [False, True]:
-                self.assertEqual(C.next(), {'x': x, 'y': y})
+                self.assertEqual(next(C), {'x': x, 'y': y})
 
 
 class TestExamples(unittest.TestCase):

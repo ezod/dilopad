@@ -32,7 +32,7 @@ class Device(object):
         """\
         A list of inputs to this device.
         """
-        inputs = self._inputs.keys()
+        inputs = list(self._inputs.keys())
         inputs.sort()
         return inputs
 
@@ -41,7 +41,7 @@ class Device(object):
         """\
         A list of outputs from this device.
         """
-        outputs = self._outputs.keys()
+        outputs = list(self._outputs.keys())
         outputs.sort()
         return outputs
 
@@ -106,7 +106,7 @@ class Circuit(Device):
         return ['%s.%s' % (deviceid, inputid) \
             for deviceid in self._devices.keys() \
             for inputid in self._devices[deviceid].inputs \
-            if not self._connections.has_key((deviceid, inputid))]
+            if not (deviceid, inputid) in self._connections]
     
     def _internal_outputs(self):
         """\
@@ -123,7 +123,7 @@ class Circuit(Device):
         generated as all unconnected inputs of the circuit's devices.
         """
         if len(self._inputs):
-            inputs = self._inputs.keys()
+            inputs = list(self._inputs.keys())
         else:
             inputs = self._internal_inputs()
         inputs.sort()
@@ -136,7 +136,7 @@ class Circuit(Device):
         generated as all outputs of the circuit's devices.
         """
         if len(self._outputs):
-            outputs = self._outputs.keys()
+            outputs = list(self._outputs.keys())
         else:
             outputs = self._internal_outputs()
         outputs.sort()
@@ -153,7 +153,7 @@ class Circuit(Device):
         """
         if not isinstance(device, Device):
             raise TypeError('not a device')
-        if self._devices.has_key(deviceid):
+        if deviceid in self._devices:
             raise ValueError('duplicate device ID')
         self._devices[deviceid] = device
         for outputid in device.outputs:
@@ -169,23 +169,27 @@ class Circuit(Device):
         @type deviceid: C{str}
         """
         # delete connections
-        for connection in self._connections.keys():
+        connections = list(self._connections.keys())
+        for connection in connections:
             if connection[0] == deviceid:
                 del self._connections[connection]
             elif self._connections[connection][0] == deviceid:
                 del self._connections[connection]
         # delete cached outputs
-        for cached_output in self._cached_outputs.keys():
+        cached_outputs = list(self._cached_outputs.keys())
+        for cached_output in cached_outputs:
             if cached_output[0] == deviceid:
                 del self._cached_outputs[cached_output]
         # delete labels
         for inputid in self._devices[deviceid].inputs:
-            for label in self._inputs.keys():
+            labels = list(self._inputs.keys())
+            for label in labels:
                 self._inputs[label].discard('%s.%s' % (deviceid, inputid))
                 if not len(self._inputs[label]):
                     del self._inputs[label]
         for outputid in self._devices[deviceid].outputs:
-            for label in self._outputs.keys():
+            labels = list(self._outputs.keys())
+            for label in labels:
                 if self._outputs[label] == '%s.%s' % (deviceid, outputid):
                     del self._outputs[label]
         # delete device

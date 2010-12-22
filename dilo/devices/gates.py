@@ -14,6 +14,8 @@ Basic logic gates.
 @license: GPL-3
 """
 
+from functools import reduce
+
 from ..device import Device
 
 

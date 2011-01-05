@@ -18,10 +18,14 @@ class Device(object):
     """\
     Device class.
     """
-    def __init__(self):
+    def __init__(self, pos=(0, 0)):
         """\
         Constructor. Not to be instantiated directly.
+
+        @param pos: The position of this device.
+        @type pos: C{tuple} of C{int}
         """
+        self.pos = pos
         self._inputs = {}
         self._outputs = {}
         if self.__class__ is Device:
@@ -86,6 +90,15 @@ class Device(object):
         Update outputs based on inputs.
         """
         raise NotImplementedError('_update method must be overridden')
+
+    def draw(self, cr):
+        """\
+        Draw this device.
+
+        @param cr: The Cairo context resource.
+        @type cr: L{cairo_context}
+        """
+        raise NotImplementedError('draw method must be overridden')
 
 
 class Circuit(Device):
@@ -313,3 +326,14 @@ class Circuit(Device):
                                 self._cached_outputs[cached_output])
             if count > 10:
                 raise RuntimeError('update loop depth exceeded')
+
+    def draw(self, cr):
+        """\
+        Draw this circuit (all contained devices and connections).
+
+        @param cr: The Cairo context resource.
+        @type cr: L{cairo_context}
+        """
+        for deviceid in self._devices.keys():
+            self._devices[deviceid].draw(cr)
+        # TODO: draw connections

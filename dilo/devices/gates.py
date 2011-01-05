@@ -23,9 +23,12 @@ class ANDGate(Device):
     """\
     AND gate class.
     """
-    def __init__(self):
+    def __init__(self, pos=(0, 0)):
         """\
         Constructor.
+
+        @param pos: The position of this device.
+        @type pos: C{tuple} of C{int}
         """
         super(ANDGate, self).__init__()
         self._inputs = {'a': False, 'b': False}
@@ -42,9 +45,12 @@ class ORGate(Device):
     """\
     OR gate class.
     """
-    def __init__(self):
+    def __init__(self, pos=(0, 0)):
         """\
         Constructor.
+
+        @param pos: The position of this device.
+        @type pos: C{tuple} of C{int}
         """
         super(ORGate, self).__init__()
         self._inputs = {'a': False, 'b': False}
@@ -61,13 +67,16 @@ class NANDGate(Device):
     """\
     NAND gate class.
     """
-    def __init__(self):
+    def __init__(self, pos=(0, 0)):
         """\
         Constructor.
+
+        @param pos: The position of this device.
+        @type pos: C{tuple} of C{int}
         """
         super(NANDGate, self).__init__()
         self._inputs = {'a': False, 'b': False}
-        self._outputs = {'q': False}
+        self._outputs = {'q': True}
 
     def _update(self):
         """\
@@ -80,13 +89,16 @@ class NORGate(Device):
     """\
     NOR gate class.
     """
-    def __init__(self):
+    def __init__(self, pos=(0, 0)):
         """\
         Constructor.
+
+        @param pos: The position of this device.
+        @type pos: C{tuple} of C{int}
         """
         super(NORGate, self).__init__()
         self._inputs = {'a': False, 'b': False}
-        self._outputs = {'q': False}
+        self._outputs = {'q': True}
 
     def _update(self):
         """\
@@ -99,9 +111,12 @@ class XORGate(Device):
     """\
     XOR gate class.
     """
-    def __init__(self):
+    def __init__(self, pos=(0, 0)):
         """\
         Constructor.
+
+        @param pos: The position of this device.
+        @type pos: C{tuple} of C{int}
         """
         super(XORGate, self).__init__()
         self._inputs = {'a': False, 'b': False}
@@ -119,13 +134,16 @@ class XNORGate(Device):
     """\
     XNOR gate class.
     """
-    def __init__(self):
+    def __init__(self, pos=(0, 0)):
         """\
         Constructor.
+
+        @param pos: The position of this device.
+        @type pos: C{tuple} of C{int}
         """
         super(XNORGate, self).__init__()
         self._inputs = {'a': False, 'b': False}
-        self._outputs = {'q': False}
+        self._outputs = {'q': True}
 
     def _update(self):
         """\

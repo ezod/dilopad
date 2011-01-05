@@ -21,9 +21,12 @@ class Logic0(Device):
     """\
     Logic zero.
     """
-    def __init__(self):
+    def __init__(self, pos=(0, 0)):
         """\
         Constructor.
+
+        @param pos: The position of this device.
+        @type pos: C{tuple} of C{int}
         """
         super(Logic0, self).__init__()
         self._outputs = {'q': False}
@@ -36,9 +39,12 @@ class Logic1(Device):
     """\
     Logic one.
     """
-    def __init__(self):
+    def __init__(self, pos=(0, 0)):
         """\
         Constructor.
+
+        @param pos: The position of this device.
+        @type pos: C{tuple} of C{int}
         """
         super(Logic1, self).__init__()
         self._outputs = {'q': True}
@@ -54,9 +60,12 @@ class Buffer(Device):
     """\
     Buffer/node device class.
     """
-    def __init__(self):
+    def __init__(self, pos=(0, 0)):
         """\
         Constructor.
+
+        @param pos: The position of this device.
+        @type pos: C{tuple} of C{int}
         """
         super(Buffer, self).__init__()
         self._inputs = {'a': False}
@@ -73,9 +82,12 @@ class Inverter(Device):
     """\
     Inverter (NOT gate) class.
     """
-    def __init__(self):
+    def __init__(self, pos=(0, 0)):
         """\
         Constructor.
+
+        @param pos: The position of this device.
+        @type pos: C{tuple} of C{int}
         """
         super(Inverter, self).__init__()
         self._inputs = {'a': False}
@@ -94,9 +106,12 @@ class Sender(Buffer):
     """
     outputs = []
 
-    def __init__(self):
+    def __init__(self, pos=(0, 0)):
         """\
         Constructor.
+
+        @param pos: The position of this device.
+        @type pos: C{tuple} of C{int}
         """
         super(Sender, self).__init__()
         self._receiver = None
@@ -146,9 +161,12 @@ class Receiver(Buffer):
     """
     inputs = []
 
-    def __init__(self):
+    def __init__(self, pos=(0, 0)):
         """\
         Constructor.
+
+        @param pos: The position of this device.
+        @type pos: C{tuple} of C{int}
         """
         super(Receiver, self).__init__()
         self._sender = None

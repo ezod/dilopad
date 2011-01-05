@@ -107,26 +107,45 @@ class Circuit(Device):
     exposes the Device API.
     """
     def __init__(self):
+        """\
+        Constructor.
+        """
         super(Circuit, self).__init__()
         self._devices = {}
         self._connections = {}
         self._cached_outputs = {}
 
+    def __getitem__(self, key):
+        """\
+        Get a device object reference by device ID.
+
+        @param key: The device ID.
+        @type key: C{str}
+        """
+        return self._devices[key]
+        # TODO: make this return connections as well?
+
     def _internal_inputs(self):
         """\
         Return all unconnected inputs of the circuit's devices.
+        
+        @return: List of unconnected device inputs.
+        @rtype: C{list} of C{str}
         """
         return ['%s.%s' % (deviceid, inputid) \
-            for deviceid in self._devices.keys() \
+            for deviceid in self.devices \
             for inputid in self._devices[deviceid].inputs \
             if not (deviceid, inputid) in self._connections]
     
     def _internal_outputs(self):
         """\
         Return all outputs of the circuit's devices.
+        
+        @return: List of device outputs.
+        @rtype: C{list} of C{str}
         """
         return ['%s.%s' % (deviceid, outputid) \
-            for deviceid in self._devices.keys() \
+            for deviceid in self.devices \
             for outputid in self._devices[deviceid].outputs]
         
     @property
@@ -154,6 +173,13 @@ class Circuit(Device):
             outputs = self._internal_outputs()
         outputs.sort()
         return outputs
+
+    @property
+    def devices(self):
+        """\
+        A list of device IDs in the circuit.
+        """
+        return self._devices.keys()
 
     def add(self, deviceid, device):
         """\
@@ -334,6 +360,6 @@ class Circuit(Device):
         @param cr: The Cairo context resource.
         @type cr: L{cairo_context}
         """
-        for deviceid in self._devices.keys():
+        for deviceid in self.devices:
             self._devices[deviceid].draw(cr)
         # TODO: draw connections

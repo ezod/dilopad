@@ -179,7 +179,7 @@ class Circuit(Device):
         """\
         A list of device IDs in the circuit.
         """
-        return self._devices.keys()
+        return list(self._devices.keys())
 
     def add(self, deviceid, device):
         """\

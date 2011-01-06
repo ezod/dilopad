@@ -52,6 +52,8 @@ class Pad(gtk.DrawingArea):
             cr.move_to(0, y * 10)
             cr.rel_line_to(width, 0)
             cr.stroke()
+        # circuit
+        self.circuit.draw(cr)
 
 
 class Interface(gtk.Window):

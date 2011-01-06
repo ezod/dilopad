@@ -30,7 +30,7 @@ class ANDGate(Device):
         @param pos: The position of this device.
         @type pos: C{tuple} of C{int}
         """
-        super(ANDGate, self).__init__()
+        super(ANDGate, self).__init__(pos=pos)
         self._inputs = {'a': False, 'b': False}
         self._outputs = {'q': False}
 
@@ -52,7 +52,7 @@ class ORGate(Device):
         @param pos: The position of this device.
         @type pos: C{tuple} of C{int}
         """
-        super(ORGate, self).__init__()
+        super(ORGate, self).__init__(pos=pos)
         self._inputs = {'a': False, 'b': False}
         self._outputs = {'q': False}
 
@@ -74,7 +74,7 @@ class NANDGate(Device):
         @param pos: The position of this device.
         @type pos: C{tuple} of C{int}
         """
-        super(NANDGate, self).__init__()
+        super(NANDGate, self).__init__(pos=pos)
         self._inputs = {'a': False, 'b': False}
         self._outputs = {'q': True}
 
@@ -96,7 +96,7 @@ class NORGate(Device):
         @param pos: The position of this device.
         @type pos: C{tuple} of C{int}
         """
-        super(NORGate, self).__init__()
+        super(NORGate, self).__init__(pos=pos)
         self._inputs = {'a': False, 'b': False}
         self._outputs = {'q': True}
 
@@ -118,7 +118,7 @@ class XORGate(Device):
         @param pos: The position of this device.
         @type pos: C{tuple} of C{int}
         """
-        super(XORGate, self).__init__()
+        super(XORGate, self).__init__(pos=pos)
         self._inputs = {'a': False, 'b': False}
         self._outputs = {'q': False}
 
@@ -141,7 +141,7 @@ class XNORGate(Device):
         @param pos: The position of this device.
         @type pos: C{tuple} of C{int}
         """
-        super(XNORGate, self).__init__()
+        super(XNORGate, self).__init__(pos=pos)
         self._inputs = {'a': False, 'b': False}
         self._outputs = {'q': True}
 

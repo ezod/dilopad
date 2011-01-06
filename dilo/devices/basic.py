@@ -28,7 +28,7 @@ class Logic0(Device):
         @param pos: The position of this device.
         @type pos: C{tuple} of C{int}
         """
-        super(Logic0, self).__init__()
+        super(Logic0, self).__init__(pos=pos)
         self._outputs = {'q': False}
 
     def _update(self):
@@ -46,7 +46,7 @@ class Logic1(Device):
         @param pos: The position of this device.
         @type pos: C{tuple} of C{int}
         """
-        super(Logic1, self).__init__()
+        super(Logic1, self).__init__(pos=pos)
         self._outputs = {'q': True}
 
     def _update(self):
@@ -67,7 +67,7 @@ class Buffer(Device):
         @param pos: The position of this device.
         @type pos: C{tuple} of C{int}
         """
-        super(Buffer, self).__init__()
+        super(Buffer, self).__init__(pos=pos)
         self._inputs = {'a': False}
         self._outputs = {'q': True}
 
@@ -89,7 +89,7 @@ class Inverter(Device):
         @param pos: The position of this device.
         @type pos: C{tuple} of C{int}
         """
-        super(Inverter, self).__init__()
+        super(Inverter, self).__init__(pos=pos)
         self._inputs = {'a': False}
         self._outputs = {'q': True}
 
@@ -113,7 +113,7 @@ class Sender(Buffer):
         @param pos: The position of this device.
         @type pos: C{tuple} of C{int}
         """
-        super(Sender, self).__init__()
+        super(Sender, self).__init__(pos=pos)
         self._receiver = None
 
     @property
@@ -168,7 +168,7 @@ class Receiver(Buffer):
         @param pos: The position of this device.
         @type pos: C{tuple} of C{int}
         """
-        super(Receiver, self).__init__()
+        super(Receiver, self).__init__(pos=pos)
         self._sender = None
 
     @property
